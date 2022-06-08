@@ -41,6 +41,7 @@ namespace Identity.Configuration
                     Port = GetConfigurationValue<int>("Database:Port"),
                     Username = GetConfigurationValue<string>("Database:Username"),
                     Password = GetConfigurationValue<string>("Database:Password"),
+                    DbName = GetConfigurationValue<string>("Database:DbName"),
                 },
                 Swagger = new SwaggerSetting
                 {
