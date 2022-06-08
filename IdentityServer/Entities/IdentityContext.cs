@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Identity.Entities
 {
@@ -16,14 +15,6 @@ namespace Identity.Entities
         }
 
         public DbSet<AdminUser> AdminUsers { get; set; } = null!;
-    }
-
-    public interface IIdentityContext
-    {
-        DatabaseFacade Database { get; }
-        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
-
-        DbSet<AdminUser> AdminUsers { get; set; }
     }
 
 }

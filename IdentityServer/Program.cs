@@ -1,10 +1,16 @@
 using Identity.Configuration;
 using Identity.Entities;
 using Identity.Filters;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using System;
+using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -62,7 +68,7 @@ builder.Services.AddSwaggerGen(c =>
         Contact = new OpenApiContact
         {
             Email = string.Empty,
-            Url = new Uri(appSettings.Swagger?.Link),
+            Url = new Uri(appSettings.Swagger?.Link ?? String.Empty),
         }
     });
     c.EnableAnnotations();

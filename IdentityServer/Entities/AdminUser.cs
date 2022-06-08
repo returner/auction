@@ -1,4 +1,6 @@
-﻿namespace Identity.Entities
+﻿using System;
+
+namespace Identity.Entities
 {
     public record AdminUser
     {

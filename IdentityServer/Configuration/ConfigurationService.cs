@@ -1,4 +1,8 @@
 ﻿using Identity.Configuration.Models;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Identity.Configuration
 {

@@ -1,4 +1,6 @@
-﻿namespace Identity.Configuration.Models
+﻿using System.Collections.Generic;
+
+namespace Identity.Configuration.Models
 {
     public record AppSettings : IAppSettings
     {
