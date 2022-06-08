@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Identity.Controllers.Auth
 {
-    public class AuthController : ControllerBase
+    public class AuthController : ApiControllerBase
     {
         private readonly IIdentityContext _context;
         public AuthController(IIdentityContext context)

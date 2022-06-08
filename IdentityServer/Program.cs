@@ -102,7 +102,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "IdentityServer");
-        c.RoutePrefix = string.Empty; //if swagger show webroot
+        //c.RoutePrefix = string.Empty; //if swagger show webroot
     });
 }
 
