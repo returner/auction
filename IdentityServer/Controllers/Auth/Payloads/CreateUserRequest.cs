@@ -1,4 +1,4 @@
-﻿namespace Identity.Controllers.Auth.Dtos
+﻿namespace Identity.Controllers.Auth.Payloads
 {
     public record CreateUserRequest
     {

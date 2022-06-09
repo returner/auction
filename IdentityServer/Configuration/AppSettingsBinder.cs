@@ -49,6 +49,14 @@ namespace Identity.Configuration
                     Version = GetConfigurationValue<string>("Swagger:Version"),
                     Description = GetConfigurationValue<string>("Swagger:Description"),
                     Link = GetConfigurationValue<string>("Swagger:Link"),
+                },
+                Jwt = new JwtParamter
+                {
+                    Subject = GetConfigurationValue<string>("Jwt:Subject"),
+                    Issuer = GetConfigurationValue<string>("Jwt:Issuer"),
+                    Audience = GetConfigurationValue<string>("Jwt:Audience"),
+                    ExpireMinutes = GetConfigurationValue<int>("Jwt:ExpireMinutes"),
+                    SigningKey = GetConfigurationValue<string>("Jwt:SigningKey"),
                 }
             };
 

@@ -7,5 +7,6 @@ namespace Identity.Configuration.Models
         public IEnumerable<string>? CorsOrigins { get; init; }
         public DatabaseSetting? Database { get; init; }
         public SwaggerSetting? Swagger { get; init; }
+        public JwtParamter Jwt { get; init; } = null!;
     }
 }
