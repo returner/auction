@@ -10,13 +10,4 @@ namespace Identity.Configuration.Models
         JwtParamter Jwt { get; init; }
     }
 
-    public record JwtParamter
-    {
-        public string Subject { get; init; } = null!;
-        public string Issuer { get; init; } = null!;
-        public string Audience { get; init; } = null!;
-        public int ExpireMinutes { get; init; }
-        public string SigningKey { get; set; } = null!;
-    }
-
 }

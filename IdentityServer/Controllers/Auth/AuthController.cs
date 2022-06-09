@@ -1,7 +1,9 @@
 ﻿using Identity.Configuration.Models;
+using Identity.Controllers.Auth.Dtos;
 using Identity.Controllers.Auth.Payloads;
 using Identity.Entities;
 using Identity.Exceptions;
+using Identity.Helper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -36,67 +38,37 @@ namespace Identity.Controllers.Auth
         [SwaggerResponse(200, "success", typeof(UserSigninResponse))]
         public async Task<IActionResult> SigninAsync(UserSigninRequest userSigninRequest)
         {
-            if (userSigninRequest == null || string.IsNullOrWhiteSpace(userSigninRequest.UserId) || string.IsNullOrWhiteSpace(userSigninRequest.Password))
-                throw new ArgumentNullException(nameof(userSigninRequest));
-
-            var user = await _context.AdminUsers
-                .Where(d => d.UserId != null && d.UserId.Equals(userSigninRequest.UserId) && d.Password != null && d.Password.Equals(userSigninRequest.Password))
-                .SingleOrDefaultAsync();
-
-            if (user is null)
-                throw new UserNotExistException();
-
-            var v = _appSettings?.Jwt?.GetType().GetProperties().All(d => d.GetValue(_appSettings.Jwt) != null);
-            if (v.HasValue && !v.Value)
+            try
             {
-                throw new NullReferenceException(nameof(_appSettings.Jwt));
+                if (userSigninRequest == null || string.IsNullOrWhiteSpace(userSigninRequest.ClientId)
+                    || string.IsNullOrWhiteSpace(userSigninRequest.UserId) || string.IsNullOrWhiteSpace(userSigninRequest.Password))
+                    throw new ArgumentNullException(nameof(userSigninRequest));
+
+                var user = await _context.AdminUsers
+                    .Where(d => d.UserId != null && d.UserId.Equals(userSigninRequest.UserId) 
+                    && d.Password != null && d.Password.Equals(userSigninRequest.Password))
+                    .SingleOrDefaultAsync();
+
+                if (user is null)
+                    throw new UserNotExistException();
+
+                var jwtTokenBuilder = new JwtTokenBuilder(_appSettings);
+
+                var token = jwtTokenBuilder.Generate(new TokenGeneratePayload(userSigninRequest.ClientId, user));
+                var result = new UserSigninResponse
+                {
+                    AccessToken = token.AccessToken,
+                    IdToken = token.IdToken,
+                    RefreshToken = token.RefreshToken,
+                    ExpiresIn = _appSettings.Jwt.ExpireMinutes * 60,
+                };
+
+                return Ok(result);
             }
-
-            var claims = new[]
+            catch(Exception ex)
             {
-                new Claim(JwtRegisteredClaimNames.Sub, _appSettings!.Jwt!.Subject!),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
-                new Claim("UserId", user.UserId is null ? string.Empty : user.UserId),
-                new Claim("Name", user.Name is null ? string.Empty : user.Name),
-                new Claim("Email", user.Email is null ? string.Empty : user.Email)
-            };
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettings!.Jwt!.SigningKey!));
-            var signin = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var token = new JwtSecurityToken(_appSettings.Jwt.Issuer, _appSettings.Jwt.Audience, claims, 
-                expires: DateTime.UtcNow.AddMinutes(_appSettings.Jwt.ExpireMinutes), signingCredentials: signin);
-
-            var result = new UserSigninResponse
-            { 
-                AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
-                RefreshToken = Guid.NewGuid().ToString(),
-                ExpiresIn = _appSettings.Jwt.ExpireMinutes * 60,
-            };
-
-            return Ok(result);
-        }
-
-
-        /// <summary>
-        /// 사용자 정보 조회
-        /// </summary>
-        /// <returns></returns>
-        [Authorize]
-        [HttpGet("Users")]
-        [SwaggerResponse(200, "success", typeof(OkResult))]
-        public async Task<IActionResult> AuthTest()
-        {
-            var data = await _context.AdminUsers.ToArrayAsync();
-            return new OkObjectResult(data);
-        }
-
-        [HttpGet("User/{id}")]
-        [SwaggerResponse(200, "success", typeof(OkResult))]
-        public async Task<IActionResult> GetUser(int id)
-        {
-            var result = await _context.AdminUsers.FindAsync(id);
-            return new OkObjectResult(result);
+                return BadRequest(ex);
+            }
         }
 
         /// <summary>
@@ -108,28 +80,46 @@ namespace Identity.Controllers.Auth
         /// <exception cref="Exception"></exception>
         [HttpPost("CreateUser")]
         [SwaggerResponse(200, "success", typeof(OkResult))]
-        public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest createUserRequest)
+        public async Task<IActionResult> CreateUserAsync([FromBody] CreateUserRequest createUserRequest)
         {
-            if (string.IsNullOrWhiteSpace(createUserRequest.UserId) || string.IsNullOrWhiteSpace(createUserRequest.Password))
-                throw new ArgumentNullException();
-
-            var isExist = await _context.AdminUsers.Where(d => d.UserId != null && d.UserId.Equals(createUserRequest.UserId)).AnyAsync();
-            if (isExist)
-                throw new Exception("User Exist");
-
-            await _context.AdminUsers.AddAsync(new AdminUser
+            try
             {
-                UserId = createUserRequest.UserId,
-                Password = createUserRequest.Password,
-                Name = createUserRequest.Name,
-                Email = createUserRequest.Email,
-                CreatedDate = DateTime.UtcNow
-            });
+                if (string.IsNullOrWhiteSpace(createUserRequest.UserId) || string.IsNullOrWhiteSpace(createUserRequest.Password))
+                    throw new ArgumentNullException();
 
-            var result = await _context.SaveChangesAsync();
-            return new OkObjectResult(result);
+                var isExist = await _context.AdminUsers.Where(d => d.UserId != null && d.UserId.Equals(createUserRequest.UserId)).AnyAsync();
+                if (isExist)
+                    throw new Exception("User Exist");
+
+                await _context.AdminUsers.AddAsync(new AdminUser
+                {
+                    UserKey = UserKeyGenerate.Create(),
+                    UserId = createUserRequest.UserId,
+                    Password = createUserRequest.Password,
+                    Name = createUserRequest.Name,
+                    Email = createUserRequest.Email,
+                    CreatedDate = DateTime.UtcNow
+                });
+
+                var result = await _context.SaveChangesAsync();
+                return new OkObjectResult(result);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
 
-
+        /// <summary>
+        /// 토큰 리프래시
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("Refresh")]
+        [SwaggerResponse(200, "success", typeof(OkResult))]
+        public async Task<IActionResult> RefreshTokenAsync([FromBody]RefreshTokenRequest refreshTokenRequest)
+        {
+            await Task.CompletedTask;
+            return Ok();
+        }
     }
 }

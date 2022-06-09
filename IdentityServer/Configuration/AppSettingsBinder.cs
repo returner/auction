@@ -56,7 +56,9 @@ namespace Identity.Configuration
                     Issuer = GetConfigurationValue<string>("Jwt:Issuer"),
                     Audience = GetConfigurationValue<string>("Jwt:Audience"),
                     ExpireMinutes = GetConfigurationValue<int>("Jwt:ExpireMinutes"),
-                    SigningKey = GetConfigurationValue<string>("Jwt:SigningKey"),
+                    AccessTokenSigningKey = GetConfigurationValue<string>("Jwt:AccessTokenSigningKey"),
+                    RefreshIntervalMinutes = GetConfigurationValue<int>("Jwt:RefreshIntervalMinutes"),
+                    RefreshTokenDecryptKey = GetConfigurationValue<string>("Jwt:RefreshTokenDecryptKey"),
                 }
             };
 

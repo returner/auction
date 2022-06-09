@@ -1,6 +1,8 @@
-﻿namespace Identity.Controllers.Auth.Payloads
+﻿using Identity.Interfaces;
+
+namespace Identity.Controllers.Auth.Dtos
 {
-    public record CreateUserRequest
+    public record CreateUserRequest : IResponseBase
     {
         public string? UserId { get; init; }
         public string? Password { get; init; }
