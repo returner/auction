@@ -22,7 +22,6 @@ namespace Identity.Filters
             //    In = ParameterLocation.Header,
             //    Required = false,
             //    Description = "Alliance Issuer dev Key : fTyvGMnk1EaeZhiH+JZmMw==",
-
             //});
 
             //https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/1425

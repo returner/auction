@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Linq;
+using System.Net;
+using System.Net.Mime;
 using System.Threading.Tasks;
 
 namespace Identity.Controllers.Auth
@@ -17,6 +19,10 @@ namespace Identity.Controllers.Auth
             _context = context;
         }
 
+        /// <summary>
+        /// 사용자 정보 조회
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("Users")]
         [SwaggerResponse(200, "success", typeof(OkResult))]
         public async Task<IActionResult> AuthTest()
@@ -33,6 +39,13 @@ namespace Identity.Controllers.Auth
             return new OkObjectResult(result);
         }
 
+        /// <summary>
+        /// 사용자 생성
+        /// </summary>
+        /// <param name="createUserRequest"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="Exception"></exception>
         [HttpPost("CreateUser")]
         [SwaggerResponse(200, "success", typeof(OkResult))]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest createUserRequest)

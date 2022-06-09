@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Identity.Configuration
 {
-    public class ConfigurationService
+    public class AppSettingsBinder
     {
         private const string DEV_ENVIRONMENT_NAME = "ASPNETCORE_ENVIRONMENT";
         
@@ -14,7 +14,7 @@ namespace Identity.Configuration
         private readonly string? _currentDirectory;
         private readonly IConfiguration _configuration;
 
-        public ConfigurationService(string? currentDirectory = null)
+        public AppSettingsBinder(string? currentDirectory = null)
         {
             _currentDirectory = currentDirectory ?? Directory.GetCurrentDirectory();
 
@@ -29,7 +29,7 @@ namespace Identity.Configuration
                 .Build();
         }
 
-        public IAppSettings GetAppSettings()
+        public IAppSettings BindAppSettings()
         {
             var appSettings = new AppSettings 
             { 

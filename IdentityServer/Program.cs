@@ -17,12 +17,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers().AddNewtonsoftJson();
+builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
-// build AppSettings
-var appSettings = new ConfigurationService(AppContext.BaseDirectory).GetAppSettings();
+// bind appsettings.json
+var appSettings = new AppSettingsBinder(AppContext.BaseDirectory).BindAppSettings();
 
 // CORS policy
 if (appSettings.CorsOrigins != null && appSettings.CorsOrigins.Any())
@@ -72,15 +72,14 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
     c.EnableAnnotations();
-    //c.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
-    //{
-    //    Name = "Authorization",
-    //    In = ParameterLocation.Header,
-    //    Type = SecuritySchemeType.Http,
-    //    Scheme = "bearer",
-    //});
+    c.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+    });
     c.OperationFilter<AuthorizeAndParametersOperationFilter>();
-    // swagger에 표시해줄 정보를 생성하기 위해 빌드시 xml파일 생성
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     c.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
@@ -98,11 +97,11 @@ app.UseResponseCompression();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "IdentityServer");
-        //c.RoutePrefix = string.Empty; //if swagger show webroot
     });
 }
 

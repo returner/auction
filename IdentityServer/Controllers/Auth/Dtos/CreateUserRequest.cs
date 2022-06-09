@@ -2,9 +2,9 @@
 {
     public record CreateUserRequest
     {
-        public string? UserId { get; }
-        public string? Password { get; }
-        public string? Name { get; }
-        public string? Email { get; }
+        public string? UserId { get; init; }
+        public string? Password { get; init; }
+        public string? Name { get; init; }
+        public string? Email { get; init; }
     }
 }
